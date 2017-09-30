@@ -1,0 +1,19 @@
+{
+  "name": "renatio/dropboxadapter-plugin",
+  "type": "october-plugin",
+  "description": "Dropbox filesystem adapter plugin for OctoberCMS",
+  "homepage": "https://octobercms.com/plugin/renatio-dropboxadapter",
+  "keywords": ["octobercms-plugin", "octobercms", "php", "laravel", "dropbox"],
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Michal Plodowski",
+      "email": "michal.plodowski@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.0",
+    "spatie/flysystem-dropbox": "^1.0",
+    "composer/installers": "~1.0"
+  }
+}
