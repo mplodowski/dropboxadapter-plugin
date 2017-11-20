@@ -34,18 +34,20 @@ To use Dropbox as default uploads/media storage for October installation update 
 
     'uploads' => [
         'disk'   => 'dropbox',
-        'folder' => 'uploads',
-        'path'   => '/storage/app/uploads',
+        'folder' => '',
+        'path'   => '',
     ],
 
     'media' => [
         'disk'   => 'dropbox',
-        'folder' => 'media',
-        'path'   => '/storage/app/media',
+        'folder' => '',
+        'path'   => '',
     ],
 
 ],
 ```
+
+> **Important note:** If you want to specify `folder` or `path` than you must ensure it exists on Dropbox.
 
 ## Support
 
