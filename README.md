@@ -18,12 +18,11 @@ Add new filesystem disk in `disks` array in `config/filesystems.php`:
 ```
 'dropbox' => [
     'driver' => 'dropbox',
-    'app' => '',
     'authorizationToken' => '',
 ],
 ```
 
-Create new app and generate authorization token on the [App Console](https://www.dropbox.com/developers/apps) at Dropbox.
+Create a new app and generate an authorization token with the [Dropbox App Console](https://www.dropbox.com/developers/apps).
 
 In this configuration file you can also set default filesystem and cloud disk.
 
