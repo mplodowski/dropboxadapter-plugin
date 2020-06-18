@@ -8,17 +8,9 @@ use League\Flysystem\Filesystem;
 use Spatie\Dropbox\Client as DropboxClient;
 use Spatie\FlysystemDropbox\DropboxAdapter;
 
-/**
- * Class DropboxServiceProvider
- * @package Renatio\DropboxAdapter\Providers
- */
 class DropboxServiceProvider extends ServiceProvider
 {
-    /**
-     * Perform post-registration booting of services.
-     *
-     * @return void
-     */
+
     public function boot()
     {
         Storage::extend('dropbox', function ($app, $config) {
@@ -26,18 +18,14 @@ class DropboxServiceProvider extends ServiceProvider
                 $config['authorizationToken']
             );
 
-            return new Filesystem(new DropboxAdapter($client));
+            $adapter = new DropboxAdapter($client);
+
+            return new Filesystem($adapter, ['case_sensitive' => false]);
         });
     }
 
-    /**
-     * Register bindings in the container.
-     *
-     * @return void
-     */
     public function register()
     {
-//
+        //
     }
-
 }

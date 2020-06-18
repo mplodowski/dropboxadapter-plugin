@@ -5,16 +5,9 @@ namespace Renatio\DropboxAdapter;
 use Renatio\DropboxAdapter\Providers\DropboxServiceProvider;
 use System\Classes\PluginBase;
 
-/**
- * Class Plugin
- * @package Renatio\DropboxAdapter
- */
 class Plugin extends PluginBase
 {
 
-    /**
-     * @return array
-     */
     public function pluginDetails()
     {
         return [
@@ -26,12 +19,8 @@ class Plugin extends PluginBase
         ];
     }
 
-    /**
-     * @return void
-     */
     public function boot()
     {
         $this->app->register(DropboxServiceProvider::class);
     }
-
 }

@@ -1,6 +1,6 @@
 # Dropbox Adapter Plugin
 
-Dropbox filesystem adapter plugin for OctoberCMS.
+Dropbox v2 API filesystem adapter plugin for OctoberCMS.
 
 ## Installation
 
