@@ -42,6 +42,3 @@ Please use [GitHub Issues Page](https://github.com/mplodowski/backupmanager-plug
 with plugin.
 
 > Reviews should not be used for getting support or reporting bugs, if you need support please use the Plugin support link.
-
-Icon made by [Darius Dan](https://www.flaticon.com/authors/darius-dan)
-from [www.flaticon.com](https://www.flaticon.com/).
