@@ -13,47 +13,35 @@ There are couple ways to install this plugin.
 
 ## Configuration
 
+The first thing you need to do is to get an authorization token at Dropbox. A token can be generated in the [App Console](https://www.dropbox.com/developers/apps) for any Dropbox API app. You'll find more info at [the Dropbox Developer Blog](https://blogs.dropbox.com/developers/2014/05/generate-an-access-token-for-your-own-account/).
+
 Add new filesystem disk in `disks` array in `config/filesystems.php`:
 
 ```
 'dropbox' => [
     'driver' => 'dropbox',
-    'authorizationToken' => '',
+    'authorization_token' => env('DROPBOX_ACCESS_TOKEN'),
 ],
 ```
 
-Create a new app and generate an authorization token with the [Dropbox App Console](https://www.dropbox.com/developers/apps).
+Set generated authorization token `DROPBOX_ACCESS_TOKEN` in your `.env` file.
 
-In this configuration file you can also set default filesystem and cloud disk.
-
-To use Dropbox as default uploads/media storage for October installation update `config/cms.php`:
-
-```
-'storage' => [
-
-    'uploads' => [
-        'disk'   => 'dropbox',
-        'folder' => '',
-        'path'   => '',
-    ],
-
-    'media' => [
-        'disk'   => 'dropbox',
-        'folder' => '',
-        'path'   => '',
-    ],
-
-],
-```
-
-> **Important note:** If you want to specify `folder` or `path` than you must ensure it exists on Dropbox.
-
-## Support
-
-Please use [GitHub Issues Page](https://github.com/mplodowski/dropboxadapter-plugin/issues) to report any issues with plugin.
-
-> Reviews should not be used for getting support or reporting bugs, if you need support please use the Plugin support link.
+You can adjust resource storage (media, uploads, resources) configuration in `config/system.php` file.
 
 ## Like this plugin?
 
 If you like this plugin, give this plugin a Like or Make donation with [PayPal](https://www.paypal.me/mplodowski).
+
+## My other plugins
+
+Please check my other [plugins](https://octobercms.com/author/Renatio).
+
+## Support
+
+Please use [GitHub Issues Page](https://github.com/mplodowski/backupmanager-plugin-public/issues) to report any issues
+with plugin.
+
+> Reviews should not be used for getting support or reporting bugs, if you need support please use the Plugin support link.
+
+Icon made by [Darius Dan](https://www.flaticon.com/authors/darius-dan)
+from [www.flaticon.com](https://www.flaticon.com/).

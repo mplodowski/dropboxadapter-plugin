@@ -3,6 +3,6 @@
 return [
     'plugin' => [
         'name' => 'Dropbox Adapter Plugin',
-        'description' => 'Add Dropbox filesystem adapter to OctoberCMS'
+        'description' => 'Add Dropbox filesystem adapter to October CMS.',
     ],
 ];
