@@ -18,8 +18,8 @@
         }
     ],
     "require": {
-        "spatie/flysystem-dropbox": "^2.0",
-        "october/rain": "^3.0",
+        "october/rain": "^3.0|^4.0",
+        "spatie/flysystem-dropbox": "^3.0",
         "composer/installers": "~1.0"
     },
     "config": {
