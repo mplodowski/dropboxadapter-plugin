@@ -22,6 +22,13 @@ describe('DropboxServiceProvider', function () {
             expect($token)->toBe('test-specific-token-123');
         });
 
+        it('gives the dropbox client a retrying http handler', function () {
+            $this->configureDropboxDisk('retrying_dropbox');
+
+            expect(dropboxHandlerStack(Storage::disk('retrying_dropbox')))
+                ->toContain('dropbox_retry');
+        });
+
         it('applies the root option as a path prefix', function () {
             $this->configureDropboxDisk('prefixed_dropbox', ['root' => '/backups']);
 

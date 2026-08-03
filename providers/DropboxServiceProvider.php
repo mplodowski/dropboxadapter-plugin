@@ -2,12 +2,14 @@
 
 namespace Renatio\DropboxAdapter\Providers;
 
+use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use InvalidArgumentException;
 use League\Flysystem\Filesystem;
 use Renatio\DropboxAdapter\Classes\RefreshTokenProvider;
+use Renatio\DropboxAdapter\Classes\RetryHandler;
 use Spatie\Dropbox\Client;
 use Spatie\Dropbox\TokenProvider;
 use Spatie\FlysystemDropbox\DropboxAdapter;
@@ -19,6 +21,7 @@ class DropboxServiceProvider extends ServiceProvider
         Storage::extend('dropbox', function ($app, $config) {
             $adapter = new DropboxAdapter(new Client(
                 $this->resolveTokenProvider($config),
+                new GuzzleClient(['handler' => RetryHandler::stack()]),
             ));
 
             return new FilesystemAdapter(

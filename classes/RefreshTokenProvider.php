@@ -35,7 +35,7 @@ class RefreshTokenProvider implements RefreshableTokenProvider
         ?ClientInterface $httpClient = null,
         protected ?CacheRepository $cache = null,
     ) {
-        $this->httpClient = $httpClient ?? new GuzzleClient;
+        $this->httpClient = $httpClient ?? new GuzzleClient(['handler' => RetryHandler::stack()]);
     }
 
     public function getToken(): string

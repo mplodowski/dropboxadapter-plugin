@@ -33,7 +33,21 @@ expect()->extend('toBeDropboxDisk', function () {
  */
 function dropboxTokenProvider(FilesystemAdapter $disk): TokenProvider
 {
-    $client = (new ReflectionProperty(DropboxAdapter::class, 'client'))->getValue($disk->getAdapter());
+    return (new ReflectionProperty(Client::class, 'tokenProvider'))->getValue(dropboxClient($disk));
+}
 
-    return (new ReflectionProperty(Client::class, 'tokenProvider'))->getValue($client);
+/**
+ * Renders the Guzzle handler stack behind a disk, so tests can assert which
+ * middleware the Dropbox client was given.
+ */
+function dropboxHandlerStack(FilesystemAdapter $disk): string
+{
+    $httpClient = (new ReflectionProperty(Client::class, 'client'))->getValue(dropboxClient($disk));
+
+    return (string) $httpClient->getConfig('handler');
+}
+
+function dropboxClient(FilesystemAdapter $disk): Client
+{
+    return (new ReflectionProperty(DropboxAdapter::class, 'client'))->getValue($disk->getAdapter());
 }
