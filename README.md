@@ -16,18 +16,48 @@ There are couple ways to install this plugin.
 
 ## Configuration
 
-The first thing you need to do is to get an authorization token at Dropbox. A token can be generated in the [App Console](https://www.dropbox.com/developers/apps) for any Dropbox API app. You'll find more info at [the Dropbox Developer Blog](https://blogs.dropbox.com/developers/2014/05/generate-an-access-token-for-your-own-account/).
+Create a Dropbox app in the [App Console](https://www.dropbox.com/developers/apps). The plugin supports two ways of
+authenticating, configured as a filesystem disk in the `disks` array in `config/filesystems.php`.
 
-Add new filesystem disk in `disks` array in `config/filesystems.php`:
+### Refresh token (recommended)
 
+Dropbox is phasing out long-lived access tokens in favour of short-lived ones. With a refresh token the plugin obtains
+a fresh access token automatically and renews it when Dropbox rejects the current one, so the disk keeps working
+without manual intervention.
+
+```php
+'dropbox' => [
+    'driver' => 'dropbox',
+    'app_key' => env('DROPBOX_APP_KEY'),
+    'app_secret' => env('DROPBOX_APP_SECRET'),
+    'refresh_token' => env('DROPBOX_REFRESH_TOKEN'),
+],
 ```
+
+Access tokens are cached using the application cache, so they are not re-fetched on every request.
+
+### Access token (legacy)
+
+Generated in the App Console. These tokens are long-lived but Dropbox no longer issues them for new apps.
+
+```php
 'dropbox' => [
     'driver' => 'dropbox',
     'authorization_token' => env('DROPBOX_ACCESS_TOKEN'),
 ],
 ```
 
-Set generated authorization token `DROPBOX_ACCESS_TOKEN` in your `.env` file.
+Set the corresponding values in your `.env` file. If both are configured, the refresh token takes precedence. A disk
+configured with incomplete credentials throws an `InvalidArgumentException` naming the missing keys.
+
+### Optional settings
+
+Any additional Flysystem option can be passed in the disk configuration, for example `root` to scope the disk to a
+subfolder:
+
+```php
+'root' => '/backups',
+```
 
 ## Like this plugin?
 

@@ -6,3 +6,4 @@ v3.0.2: Docs.
 v3.0.3: Docs.
 v4.0.1: Support October 4.
 v4.0.2: Update dependencies.
+v4.1.0: Add OAuth2 refresh token support and validate disk credentials.

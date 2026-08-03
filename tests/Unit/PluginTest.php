@@ -4,69 +4,44 @@ use Renatio\DropboxAdapter\Plugin;
 use Renatio\DropboxAdapter\Providers\DropboxServiceProvider;
 use System\Classes\PluginBase;
 
+function makePlugin(): Plugin
+{
+    return new Plugin(app());
+}
+
 describe('Plugin Class', function () {
     describe('Class Structure', function () {
         it('extends PluginBase', function () {
-            $reflection = new ReflectionClass(Plugin::class);
-
-            expect($reflection->getParentClass()->getName())->toBe(PluginBase::class);
-        });
-
-        it('has pluginDetails method', function () {
-            expect(method_exists(Plugin::class, 'pluginDetails'))->toBeTrue();
-        });
-
-        it('has boot method', function () {
-            expect(method_exists(Plugin::class, 'boot'))->toBeTrue();
+            expect(makePlugin())->toBeInstanceOf(PluginBase::class);
         });
     });
 
     describe('Plugin Details', function () {
-        it('returns an array', function () {
-            $plugin = new Plugin(app());
-
-            expect($plugin->pluginDetails())->toBeArray();
-        });
-
         it('has required keys', function (string $key) {
-            $plugin = new Plugin(app());
-            $details = $plugin->pluginDetails();
-
-            expect($details)->toHaveKey($key);
+            expect(makePlugin()->pluginDetails())->toHaveKey($key);
         })->with(['name', 'description', 'author', 'icon', 'homepage']);
 
         it('uses dropbox icon', function () {
-            $plugin = new Plugin(app());
-            $details = $plugin->pluginDetails();
-
-            expect($details['icon'])->toBe('icon-dropbox');
+            expect(makePlugin()->pluginDetails()['icon'])->toBe('icon-dropbox');
         });
 
         it('has Renatio as author', function () {
-            $plugin = new Plugin(app());
-            $details = $plugin->pluginDetails();
-
-            expect($details['author'])->toBe('Renatio');
+            expect(makePlugin()->pluginDetails()['author'])->toBe('Renatio');
         });
 
-        it('uses language strings for name and description', function () {
-            $plugin = new Plugin(app());
-            $details = $plugin->pluginDetails();
+        it('resolves translated name and description', function () {
+            $details = makePlugin()->pluginDetails();
 
-            expect($details['name'])->toStartWith('renatio.dropboxadapter::lang.plugin.');
-            expect($details['description'])->toStartWith('renatio.dropboxadapter::lang.plugin.');
+            expect(trans($details['name']))->not->toBe($details['name'])
+                ->and(trans($details['description']))->not->toBe($details['description']);
         });
     });
 
     describe('Boot Method', function () {
         it('registers DropboxServiceProvider', function () {
-            $plugin = new Plugin(app());
+            makePlugin()->boot();
 
-            $plugin->boot();
-
-            $providers = app()->getLoadedProviders();
-
-            expect($providers)->toHaveKey(DropboxServiceProvider::class);
+            expect(app()->getLoadedProviders())->toHaveKey(DropboxServiceProvider::class);
         });
     });
 });

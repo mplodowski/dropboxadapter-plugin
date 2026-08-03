@@ -1,19 +1,12 @@
 <?php
 
-/*
-|--------------------------------------------------------------------------
-| Pest Configuration for DropboxAdapter Plugin Tests
-|--------------------------------------------------------------------------
-|
-| This configuration file ensures that DropboxAdapter tests use the correct
-| test case class and have access to all helper functions.
-|
-*/
+use Illuminate\Filesystem\FilesystemAdapter;
+use Spatie\Dropbox\Client;
+use Spatie\Dropbox\TokenProvider;
+use Spatie\FlysystemDropbox\DropboxAdapter;
 
-// Include the custom TestCase for this plugin
 require_once __DIR__ . '/TestCase.php';
 
-// Use TestCase for all tests in this directory with October CMS setup
 uses(Renatio\DropboxAdapter\Tests\TestCase::class)
     ->beforeEach(function () {
         $this->setUpOctoberPlugin();
@@ -23,29 +16,24 @@ uses(Renatio\DropboxAdapter\Tests\TestCase::class)
     })
     ->in(__DIR__);
 
-// Custom expectations
-expect()->extend('toBeStorageDisk', function () {
-    $disk = $this->value;
+/**
+ * Asserts the value is a Laravel disk actually backed by the Dropbox adapter,
+ * not merely any Filesystem implementation.
+ */
+expect()->extend('toBeDropboxDisk', function () {
+    expect($this->value)->toBeInstanceOf(FilesystemAdapter::class)
+        ->and($this->value->getAdapter())->toBeInstanceOf(DropboxAdapter::class);
 
-    return expect($disk)->toBeInstanceOf(\Illuminate\Contracts\Filesystem\Filesystem::class);
+    return $this;
 });
 
-// Helper functions
-function createDropboxConfig(array $overrides = []): array
+/**
+ * Extracts the token provider from the Dropbox client behind a disk, so tests can
+ * assert which credentials the provider actually handed to the SDK.
+ */
+function dropboxTokenProvider(FilesystemAdapter $disk): TokenProvider
 {
-    return array_merge([
-        'driver' => 'dropbox',
-        'authorization_token' => 'test-token-' . uniqid(),
-    ], $overrides);
-}
+    $client = (new ReflectionProperty(DropboxAdapter::class, 'client'))->getValue($disk->getAdapter());
 
-function mockDropboxClient(): object
-{
-    return new class
-    {
-        public function __call($method, $args)
-        {
-            return $this;
-        }
-    };
+    return (new ReflectionProperty(Client::class, 'tokenProvider'))->getValue($client);
 }

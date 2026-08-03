@@ -202,12 +202,4 @@ abstract class OctoberPestTestCase extends \TestCase
 
         return $modelClasses;
     }
-
-    /**
-     * Guess the plugin code from the test file location.
-     */
-    protected function guessPluginCodeFromTest(): string
-    {
-        return 'Renatio.DropboxAdapter';
-    }
 }
