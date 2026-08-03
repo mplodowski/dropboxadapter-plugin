@@ -6,21 +6,23 @@ use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
-use InvalidArgumentException;
 use League\Flysystem\Filesystem;
-use Renatio\DropboxAdapter\Classes\RefreshTokenProvider;
 use Renatio\DropboxAdapter\Classes\RetryHandler;
+use Renatio\DropboxAdapter\Classes\TokenProviderFactory;
+use Renatio\DropboxAdapter\Models\Settings;
 use Spatie\Dropbox\Client;
-use Spatie\Dropbox\TokenProvider;
 use Spatie\FlysystemDropbox\DropboxAdapter;
+use Throwable;
 
 class DropboxServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
         Storage::extend('dropbox', function ($app, $config) {
+            $config = $this->withSettingsFallback($config);
+
             $adapter = new DropboxAdapter(new Client(
-                $this->resolveTokenProvider($config),
+                (new TokenProviderFactory)->make($config),
                 new GuzzleClient(['handler' => RetryHandler::stack()]),
             ));
 
@@ -33,62 +35,48 @@ class DropboxServiceProvider extends ServiceProvider
     }
 
     /**
-     * Resolves credentials into a token provider, preferring OAuth2 refresh tokens
-     * over the legacy long-lived access token that Dropbox is phasing out.
+     * Fills credentials the disk configuration omits with those saved in the backend.
+     * Values in config/filesystems.php always win, so existing installations keep
+     * behaving exactly as before.
      *
      * @param  array<string, mixed>  $config
+     * @return array<string, mixed>
      */
-    protected function resolveTokenProvider(array $config): TokenProvider|string
+    protected function withSettingsFallback(array $config): array
     {
-        $refreshCredentials = [
-            'app_key' => $this->stringOrNull($config, 'app_key'),
-            'app_secret' => $this->stringOrNull($config, 'app_secret'),
-            'refresh_token' => $this->stringOrNull($config, 'refresh_token'),
-        ];
-
-        if (array_filter($refreshCredentials) !== []) {
-            return $this->makeRefreshTokenProvider($refreshCredentials);
+        if ($this->hasCredentials($config)) {
+            return $config;
         }
 
-        $authorizationToken = $this->stringOrNull($config, 'authorization_token');
-
-        if ($authorizationToken === null) {
-            throw new InvalidArgumentException(
-                'Dropbox disk is missing credentials. Provide either an [authorization_token], ' .
-                'or [app_key], [app_secret] and [refresh_token] for OAuth2 refresh tokens.',
-            );
-        }
-
-        return $authorizationToken;
-    }
-
-    /**
-     * @param  array{app_key: ?string, app_secret: ?string, refresh_token: ?string}  $credentials
-     */
-    protected function makeRefreshTokenProvider(array $credentials): RefreshTokenProvider
-    {
-        $missing = array_keys($credentials, null, true);
-
-        if ($missing !== []) {
-            throw new InvalidArgumentException(
-                'Dropbox disk is missing [' . implode('], [', $missing) . '] required for OAuth2 refresh tokens.',
-            );
-        }
-
-        return new RefreshTokenProvider(
-            $credentials['app_key'],
-            $credentials['app_secret'],
-            $credentials['refresh_token'],
-        );
+        return array_merge($config, $this->settingsCredentials());
     }
 
     /**
      * @param  array<string, mixed>  $config
      */
-    protected function stringOrNull(array $config, string $key): ?string
+    protected function hasCredentials(array $config): bool
     {
-        $value = $config[$key] ?? null;
+        foreach (['authorization_token', 'app_key', 'app_secret', 'refresh_token'] as $key) {
+            if (isset($config[$key]) && is_string($config[$key]) && trim($config[$key]) !== '') {
+                return true;
+            }
+        }
 
-        return is_string($value) && trim($value) !== '' ? $value : null;
+        return false;
+    }
+
+    /**
+     * Settings live in the database, which is unavailable during install and in
+     * console contexts that run before migrations.
+     *
+     * @return array<string, string>
+     */
+    protected function settingsCredentials(): array
+    {
+        try {
+            return Settings::credentials();
+        } catch (Throwable) {
+            return [];
+        }
     }
 }

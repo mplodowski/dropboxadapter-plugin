@@ -1,0 +1,15 @@
+<div class="form-group">
+    <button
+        type="button"
+        class="btn btn-default"
+        data-request="onTestDropboxConnection"
+        data-request-success="$('#dropboxConnectionResult').html(data.result)"
+        data-load-indicator="<?= e(trans('renatio.dropboxadapter::lang.settings.testing')) ?>">
+        <i class="icon-plug"></i>
+        <?= e(trans('renatio.dropboxadapter::lang.settings.test_connection')) ?>
+    </button>
+
+    <span id="dropboxConnectionResult" class="ml-2"></span>
+
+    <p class="help-block"><?= e(trans('renatio.dropboxadapter::lang.comment.test_connection')) ?></p>
+</div>

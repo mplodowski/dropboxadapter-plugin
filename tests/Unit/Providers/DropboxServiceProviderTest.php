@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Storage;
+use Renatio\DropboxAdapter\Models\Settings;
 use Renatio\DropboxAdapter\Providers\DropboxServiceProvider;
 use Spatie\Dropbox\RefreshableTokenProvider;
 
@@ -115,6 +116,61 @@ describe('DropboxServiceProvider', function () {
             $provider = dropboxTokenProvider(Storage::disk('both_modes'));
 
             expect($provider)->toBeInstanceOf(RefreshableTokenProvider::class);
+        });
+    });
+
+    describe('Settings Fallback', function () {
+        it('uses saved settings when the disk defines no credentials', function () {
+            Settings::set([
+                'auth_mode' => 'authorization_token',
+                'authorization_token' => 'token-from-settings',
+            ]);
+
+            config()->set('filesystems.disks.settings_disk', ['driver' => 'dropbox']);
+
+            expect(dropboxTokenProvider(Storage::disk('settings_disk'))->getToken())
+                ->toBe('token-from-settings');
+        });
+
+        it('lets disk configuration win over saved settings', function () {
+            Settings::set([
+                'auth_mode' => 'authorization_token',
+                'authorization_token' => 'token-from-settings',
+            ]);
+
+            config()->set('filesystems.disks.config_wins', [
+                'driver' => 'dropbox',
+                'authorization_token' => 'token-from-config',
+            ]);
+
+            expect(dropboxTokenProvider(Storage::disk('config_wins'))->getToken())
+                ->toBe('token-from-config');
+        });
+
+        it('ignores settings entirely once the disk defines credentials', function () {
+            Settings::set([
+                'auth_mode' => 'refresh_token',
+                'app_key' => 'key-from-settings',
+                'app_secret' => 'secret-from-settings',
+                'refresh_token' => 'refresh-from-settings',
+            ]);
+
+            config()->set('filesystems.disks.no_mixing', [
+                'driver' => 'dropbox',
+                'authorization_token' => 'token-from-config',
+            ]);
+
+            $provider = dropboxTokenProvider(Storage::disk('no_mixing'));
+
+            expect($provider)->not->toBeInstanceOf(RefreshableTokenProvider::class)
+                ->and($provider->getToken())->toBe('token-from-config');
+        });
+
+        it('still rejects a disk when neither source has credentials', function () {
+            config()->set('filesystems.disks.nothing_configured', ['driver' => 'dropbox']);
+
+            expect(fn () => Storage::disk('nothing_configured'))
+                ->toThrow(InvalidArgumentException::class);
         });
     });
 

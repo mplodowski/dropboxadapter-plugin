@@ -7,3 +7,4 @@ v3.0.3: Docs.
 v4.0.1: Support October 4.
 v4.0.2: Update dependencies.
 v4.1.0: Add OAuth2 refresh token support and validate disk credentials.
+v4.2.0: Retry throttled requests and add a backend settings page with a connection test.

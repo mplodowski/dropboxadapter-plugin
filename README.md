@@ -50,6 +50,15 @@ Generated in the App Console. These tokens are long-lived but Dropbox no longer 
 Set the corresponding values in your `.env` file. If both are configured, the refresh token takes precedence. A disk
 configured with incomplete credentials throws an `InvalidArgumentException` naming the missing keys.
 
+### Backend settings
+
+Credentials can also be entered in *Settings > System > Dropbox Adapter*, which avoids editing configuration files.
+Values in `config/filesystems.php` always take precedence — a disk only falls back to the backend settings when it
+defines no credentials of its own, so existing installations are unaffected.
+
+The settings page has a **Test connection** button that verifies the credentials against the Dropbox API without
+writing any files. Secrets are encrypted before being stored.
+
 ### Optional settings
 
 Any additional Flysystem option can be passed in the disk configuration, for example `root` to scope the disk to a

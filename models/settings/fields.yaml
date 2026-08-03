@@ -1,0 +1,56 @@
+# ===================================
+#  Form Field Definitions
+# ===================================
+
+fields:
+
+    _config_notice:
+        type: partial
+        path: $/renatio/dropboxadapter/models/settings/_config_notice.htm
+        cssClass: text-muted
+
+    auth_mode:
+        label: renatio.dropboxadapter::lang.field.auth_mode
+        type: radio
+        options: getAuthModeOptions
+        comment: renatio.dropboxadapter::lang.comment.auth_mode
+
+    app_key:
+        label: renatio.dropboxadapter::lang.field.app_key
+        type: text
+        span: left
+        trigger:
+            action: show
+            field: auth_mode
+            condition: value[refresh_token]
+
+    app_secret:
+        label: renatio.dropboxadapter::lang.field.app_secret
+        type: sensitive
+        span: right
+        trigger:
+            action: show
+            field: auth_mode
+            condition: value[refresh_token]
+
+    refresh_token:
+        label: renatio.dropboxadapter::lang.field.refresh_token
+        type: sensitive
+        comment: renatio.dropboxadapter::lang.comment.refresh_token
+        trigger:
+            action: show
+            field: auth_mode
+            condition: value[refresh_token]
+
+    authorization_token:
+        label: renatio.dropboxadapter::lang.field.authorization_token
+        type: sensitive
+        comment: renatio.dropboxadapter::lang.comment.authorization_token
+        trigger:
+            action: show
+            field: auth_mode
+            condition: value[authorization_token]
+
+    _test_connection:
+        type: partial
+        path: $/renatio/dropboxadapter/models/settings/_test_connection.htm

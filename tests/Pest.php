@@ -10,6 +10,7 @@ require_once __DIR__ . '/TestCase.php';
 uses(Renatio\DropboxAdapter\Tests\TestCase::class)
     ->beforeEach(function () {
         $this->setUpOctoberPlugin();
+        $this->forgetSettings();
     })
     ->afterEach(function () {
         $this->tearDownOctoberPlugin();

@@ -2,6 +2,9 @@
 
 namespace Renatio\DropboxAdapter\Tests;
 
+use Illuminate\Support\Facades\Cache;
+use Renatio\DropboxAdapter\Models\Settings;
+
 abstract class TestCase extends OctoberPestTestCase
 {
     /**
@@ -22,5 +25,16 @@ abstract class TestCase extends OctoberPestTestCase
     public function configureDropboxDisk(string $name = 'test_dropbox', array $config = []): void
     {
         config()->set("filesystems.disks.{$name}", $this->createDropboxConfig($config));
+    }
+
+    /**
+     * October caches settings in a static property and in the cache store, neither of
+     * which is undone by the transaction rollback between tests.
+     */
+    public function forgetSettings(): void
+    {
+        Settings::clearInternalCache();
+
+        Cache::flush();
     }
 }
