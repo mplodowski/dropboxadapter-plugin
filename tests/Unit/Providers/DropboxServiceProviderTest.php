@@ -119,6 +119,60 @@ describe('DropboxServiceProvider', function () {
         });
     });
 
+    describe('Temporary URLs', function () {
+        it('advertises temporary url support', function () {
+            $this->configureDropboxDisk('temp_url_disk');
+
+            expect(Storage::disk('temp_url_disk')->providesTemporaryUrls())->toBeTrue();
+        });
+
+        it('exposes getTemporaryUrl on the adapter, which is how October detects support', function () {
+            $this->configureDropboxDisk('october_detect_disk');
+
+            expect(method_exists(Storage::disk('october_detect_disk')->getAdapter(), 'getTemporaryUrl'))
+                ->toBeTrue();
+        });
+
+        it('returns null instead of failing when Dropbox refuses the link', function () {
+            $this->configureDropboxDisk('temp_error_disk');
+            $disk = Storage::disk('temp_error_disk');
+
+            mockDropboxHttp($disk, [new GuzzleHttp\Psr7\Response(409, [], '{"error_summary":"path/not_found/"}')]);
+
+            expect($disk->getAdapter()->getTemporaryUrl('missing.zip'))->toBeNull();
+        });
+
+        it('asks Dropbox for a temporary link', function () {
+            $this->configureDropboxDisk('temp_link_disk');
+            $disk = Storage::disk('temp_link_disk');
+
+            mockDropboxHttp($disk, [
+                new GuzzleHttp\Psr7\Response(200, [], json_encode([
+                    'link' => 'https://dl.dropboxusercontent.com/apitl/1/generated',
+                    'metadata' => ['name' => 'backup.zip'],
+                ])),
+            ]);
+
+            expect($disk->temporaryUrl('backup.zip', now()->addHour()))
+                ->toBe('https://dl.dropboxusercontent.com/apitl/1/generated');
+        });
+
+        it('prefixes the configured root when requesting the link', function () {
+            $this->configureDropboxDisk('rooted_disk', ['root' => '/backups']);
+            $disk = Storage::disk('rooted_disk');
+
+            $history = mockDropboxHttp($disk, [
+                new GuzzleHttp\Psr7\Response(200, [], json_encode(['link' => 'https://example.test/x'])),
+            ]);
+
+            $disk->temporaryUrl('backup.zip', now()->addHour());
+
+            $payload = json_decode((string) $history[0]['request']->getBody(), true);
+
+            expect($payload['path'])->toBe('/backups/backup.zip');
+        });
+    });
+
     describe('Settings Fallback', function () {
         it('uses saved settings when the disk defines no credentials', function () {
             Settings::set([

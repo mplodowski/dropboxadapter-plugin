@@ -2,8 +2,9 @@
 
 Dropbox v2 API filesystem adapter plugin for OctoberCMS.
 
-> **Important note:** Currently October does not support using Dropbox for `media` and `uploads` disks.
-> This plugin's sole purpose is to allow using Dropbox as a storage option for [BackupManager plugin](https://octobercms.com/plugin/renatio-backupmanager).
+> **Important note:** This plugin is primarily intended as a storage option for the
+> [BackupManager plugin](https://octobercms.com/plugin/renatio-backupmanager). Using Dropbox for the `media` and
+> `uploads` disks is not supported — see [Media and uploads disks](#media-and-uploads-disks).
 
 ## Installation
 
@@ -58,6 +59,34 @@ defines no credentials of its own, so existing installations are unaffected.
 
 The settings page has a **Test connection** button that verifies the credentials against the Dropbox API without
 writing any files. Secrets are encrypted before being stored.
+
+## Media and uploads disks
+
+Dropbox works well for backups, where files are written and read by the application itself. It is **not supported for
+the `media` and `uploads` disks**, because October builds public asset URLs for those disks by concatenating
+`filesystems.disks.{disk}.url` with the file path, and Dropbox has no permanent public URL scheme. Files would upload
+successfully but render as broken links in the backend and on the frontend.
+
+Two further limitations apply if you are considering it anyway:
+
+- `|resize` on a media path string cannot resolve a Dropbox-backed file, because October's resizer only accepts sources
+  on a `local` disk. Resizing attachment models still works, since those are downloaded to a temporary file first.
+- Every file listing costs Dropbox API calls for size and modification time, which makes the media manager noticeably
+  slower than a local or S3 disk.
+
+Making these disks usable would require a route that streams files through the application, which is outside the scope
+of this plugin.
+
+### Temporary URLs
+
+The disk does support temporary links, which Dropbox issues with a validity of roughly four hours:
+
+```php
+Storage::disk('dropbox')->temporaryUrl('backup.zip', now()->addHour());
+```
+
+October uses these automatically for backend file downloads and thumbnails when available, falling back to its own
+routes otherwise.
 
 ### Optional settings
 

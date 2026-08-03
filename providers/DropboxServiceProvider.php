@@ -8,10 +8,10 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 use Renatio\DropboxAdapter\Classes\RetryHandler;
+use Renatio\DropboxAdapter\Classes\TemporaryUrlAdapter;
 use Renatio\DropboxAdapter\Classes\TokenProviderFactory;
 use Renatio\DropboxAdapter\Models\Settings;
 use Spatie\Dropbox\Client;
-use Spatie\FlysystemDropbox\DropboxAdapter;
 use Throwable;
 
 class DropboxServiceProvider extends ServiceProvider
@@ -21,10 +21,12 @@ class DropboxServiceProvider extends ServiceProvider
         Storage::extend('dropbox', function ($app, $config) {
             $config = $this->withSettingsFallback($config);
 
-            $adapter = new DropboxAdapter(new Client(
+            $client = new Client(
                 (new TokenProviderFactory)->make($config),
                 new GuzzleClient(['handler' => RetryHandler::stack()]),
-            ));
+            );
+
+            $adapter = new TemporaryUrlAdapter($client, rtrim($config['root'] ?? '', '/'));
 
             return new FilesystemAdapter(
                 new Filesystem($adapter, $config),

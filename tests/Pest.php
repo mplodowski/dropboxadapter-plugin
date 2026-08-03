@@ -52,3 +52,21 @@ function dropboxClient(FilesystemAdapter $disk): Client
 {
     return (new ReflectionProperty(DropboxAdapter::class, 'client'))->getValue($disk->getAdapter());
 }
+
+/**
+ * Replaces the HTTP client behind a disk with mocked responses, so Dropbox API calls
+ * can be exercised without network access.
+ *
+ * @param  array<int, GuzzleHttp\Psr7\Response|Throwable>  $responses
+ */
+function mockDropboxHttp(FilesystemAdapter $disk, array $responses): ArrayObject
+{
+    $history = new ArrayObject;
+    $stack = GuzzleHttp\HandlerStack::create(new GuzzleHttp\Handler\MockHandler($responses));
+    $stack->push(GuzzleHttp\Middleware::history($history));
+
+    $property = new ReflectionProperty(Client::class, 'client');
+    $property->setValue(dropboxClient($disk), new GuzzleHttp\Client(['handler' => $stack]));
+
+    return $history;
+}
