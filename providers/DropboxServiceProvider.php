@@ -11,23 +11,18 @@ use Spatie\FlysystemDropbox\DropboxAdapter;
 
 class DropboxServiceProvider extends ServiceProvider
 {
-    public function boot()
+    public function boot(): void
     {
         Storage::extend('dropbox', function ($app, $config) {
             $adapter = new DropboxAdapter(new Client(
-                $config['authorization_token']
+                $config['authorization_token'],
             ));
 
             return new FilesystemAdapter(
                 new Filesystem($adapter, $config),
                 $adapter,
-                $config
+                $config,
             );
         });
-    }
-
-    public function register()
-    {
-        //
     }
 }

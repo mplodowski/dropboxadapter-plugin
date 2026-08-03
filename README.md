@@ -3,7 +3,7 @@
 Dropbox v2 API filesystem adapter plugin for OctoberCMS.
 
 > **Important note:** Currently October does not support using Dropbox for `media` and `uploads` disks.
-> This plugin solely purpose is to allow using Dropbox as storage option for [BackupManager plugin](https://octobercms.com/plugin/renatio-backupmanager).
+> This plugin's sole purpose is to allow using Dropbox as a storage option for [BackupManager plugin](https://octobercms.com/plugin/renatio-backupmanager).
 
 ## Installation
 

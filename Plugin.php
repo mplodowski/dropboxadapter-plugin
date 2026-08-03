@@ -7,7 +7,7 @@ use System\Classes\PluginBase;
 
 class Plugin extends PluginBase
 {
-    public function pluginDetails()
+    public function pluginDetails(): array
     {
         return [
             'name' => 'renatio.dropboxadapter::lang.plugin.name',
@@ -18,7 +18,7 @@ class Plugin extends PluginBase
         ];
     }
 
-    public function boot()
+    public function boot(): void
     {
         $this->app->register(DropboxServiceProvider::class);
     }
