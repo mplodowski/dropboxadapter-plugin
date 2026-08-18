@@ -18,8 +18,11 @@ class DropboxServiceProvider extends ServiceProvider
 {
     public function boot(): void
     {
-        Storage::extend('dropbox', function ($app, $config) {
-            $config = $this->withSettingsFallback($config);
+        /** Laravel 13 rebinds the callback to the FilesystemManager, so $this is not the provider here. */
+        $provider = $this;
+
+        Storage::extend('dropbox', function ($app, $config) use ($provider) {
+            $config = $provider->withSettingsFallback($config);
 
             $client = new Client(
                 (new TokenProviderFactory)->make($config),
@@ -44,7 +47,7 @@ class DropboxServiceProvider extends ServiceProvider
      * @param  array<string, mixed>  $config
      * @return array<string, mixed>
      */
-    protected function withSettingsFallback(array $config): array
+    public function withSettingsFallback(array $config): array
     {
         if ($this->hasCredentials($config)) {
             return $config;
