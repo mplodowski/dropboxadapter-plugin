@@ -23,6 +23,7 @@
         "composer/installers": "^1.0|^2.0"
     },
     "require-dev": {
+        "laravel/pao": "^1.1",
         "phpunit/phpunit": "^12.0",
         "pestphp/pest": "^4.0"
     },
